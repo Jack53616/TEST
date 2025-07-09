@@ -147,12 +147,6 @@ def process_custom_withdraw(message):
 # ==== حالة معاملات السحب ====
 
 # ==== الإحصائيات ==== 
-... 
-# ==== تعديل الرصيد ====
-[هنا أمر set]
-
-# ==== الرسالة الجماعية ====
-[هنا أمر broadcast]
 
 
 @bot.callback_query_handler(func=lambda call: call.data == "withdraw_status")
