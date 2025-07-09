@@ -3,6 +3,7 @@ import json
 import os
 from datetime import datetime
 from telebot import types
+from flask import Flask, request
 
 API_TOKEN = '7857701291:AAEnJZbVPyEZDY4stTPsKsowlGocP4WyjXI'
 ADMIN_ID = 1262317603
@@ -146,9 +147,6 @@ def process_custom_withdraw(message):
 
 # ==== حالة معاملات السحب ====
 
-# ==== الإحصائيات ==== 
-
-
 @bot.callback_query_handler(func=lambda call: call.data == "withdraw_status")
 def withdraw_status(call):
     user_id = str(call.from_user.id)
@@ -260,7 +258,6 @@ def set_balance(message):
     except:
         bot.send_message(message.chat.id, "❌ الصيغة خاطئة.\nاكتب هكذا:\n`/set USER_ID AMOUNT`")
 
-
 @bot.message_handler(commands=['addtrade'])
 def add_trade(message):
     if message.from_user.id != ADMIN_ID:
@@ -282,7 +279,7 @@ def add_trade(message):
 
 @bot.message_handler(func=lambda message: True)
 def any_message(message):
-    if message.text.startswith("/"):
+    if message.text and message.text.startswith("/"):
         return
     bot.send_message(ADMIN_ID, f"📩 رسالة جديدة من {message.from_user.id}:\n{message.text}")
 
@@ -292,20 +289,22 @@ def any_message(message):
 def go_back(call):
     show_main_menu(call.message.chat.id)
 
-# ==== تشغيل البوت ====
-
-from flask import Flask, request
+# ==== تشغيل البوت مع Flask ====
 
 WEBHOOK_HOST = 'https://test-3-p0f8.onrender.com'
-WEBHOOK_PORT = 10000
-WEBHOOK_LISTEN = '0.0.0.0'
+WEBHOOK_PATH = '/webhook'
+WEBHOOK_URL = f"{WEBHOOK_HOST}{WEBHOOK_PATH}"
 
 bot.remove_webhook()
-bot.set_webhook(url=f"{WEBHOOK_HOST}/")
+bot.set_webhook(url=WEBHOOK_URL)
 
 app = Flask(__name__)
 
-@app.route('/', methods=['POST'])
+@app.route('/', methods=['GET'])
+def index():
+    return "بوت التداول شغال!"
+
+@app.route(WEBHOOK_PATH, methods=['POST'])
 def webhook():
     json_str = request.get_data().decode('UTF-8')
     update = telebot.types.Update.de_json(json_str)
@@ -313,5 +312,4 @@ def webhook():
     return 'ok', 200
 
 if __name__ == "__main__":
-    app.run(host=WEBHOOK_LISTEN, port=WEBHOOK_PORT)
-
+    app.run(host='0.0.0.0', port=10000)
