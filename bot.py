@@ -302,7 +302,7 @@ def go_back(call):
 
 from flask import Flask, request
 
-WEBHOOK_HOST = 'https://test-1-j4we.onrender.com'
+WEBHOOK_HOST = 'https://test-2-9mzf.onrender.com'
 WEBHOOK_PORT = 10000
 WEBHOOK_LISTEN = '0.0.0.0'
 
