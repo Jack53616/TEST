@@ -223,6 +223,41 @@ def stats(call):
 
 # ==== إضافة صفقة للأرشيف ====
 
+@bot.message_handler(commands=['broadcast'])
+def broadcast(message):
+    if message.from_user.id != ADMIN_ID:
+        return
+
+    text = message.text.replace('/broadcast', '').strip()
+    if not text:
+        return bot.send_message(message.chat.id, "❌ اكتب الرسالة بعد الأمر.\nمثال:\n/broadcast مرحبا جميعاً!")
+
+    count = 0
+    for uid in users:
+        try:
+            bot.send_message(int(uid), f"📢 {text}")
+            count += 1
+        except:
+            continue
+
+    bot.send_message(message.chat.id, f"✅ تم الإرسال إلى {count} مستخدم.")
+
+@bot.message_handler(commands=['set'])
+def set_balance(message):
+    if message.from_user.id != ADMIN_ID:
+        return bot.reply_to(message, "❌ لا تملك صلاحية.")
+    try:
+        parts = message.text.split()
+        target_id = str(parts[1])
+        amount = int(parts[2])
+        users[target_id] = {"balance": amount}
+        save_json("users.json", users)
+        bot.send_message(int(target_id), f"📢 تم تعديل رصيدك إلى {amount}$.")
+        bot.send_message(message.chat.id, "✅ تم التحديث بنجاح.")
+    except:
+        bot.send_message(message.chat.id, "❌ الصيغة خاطئة.\nاكتب هكذا:\n`/set USER_ID AMOUNT`")
+
+
 @bot.message_handler(commands=['addtrade'])
 def add_trade(message):
     if message.from_user.id != ADMIN_ID:
