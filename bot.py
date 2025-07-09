@@ -300,4 +300,24 @@ def go_back(call):
 
 # ==== تشغيل البوت ====
 
-bot.polling()
+from flask import Flask, request
+
+WEBHOOK_HOST = 'https://YOUR-RENDER-URL.onrender.com'
+WEBHOOK_PORT = 10000
+WEBHOOK_LISTEN = '0.0.0.0'
+
+bot.remove_webhook()
+bot.set_webhook(url=f"{WEBHOOK_HOST}/")
+
+app = Flask(__name__)
+
+@app.route('/', methods=['POST'])
+def webhook():
+    json_str = request.get_data().decode('UTF-8')
+    update = telebot.types.Update.de_json(json_str)
+    bot.process_new_updates([update])
+    return 'ok', 200
+
+if __name__ == "__main__":
+    app.run(host=WEBHOOK_LISTEN, port=WEBHOOK_PORT)
+
